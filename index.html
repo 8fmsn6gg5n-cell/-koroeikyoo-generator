@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>😀 コロ影響構文ジェネレーター</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  padding:20px;
+  min-height:100vh;
+  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  background:linear-gradient(135deg,#007bff,#003b8e);
+}
+
+.container{
+  max-width:600px;
+  margin:auto;
+  background:white;
+  border-radius:18px;
+  padding:20px;
+  box-shadow:0 8px 25px rgba(0,0,0,.25);
+}
+
+h1{
+  text-align:center;
+  color:#0056b3;
+  font-size:24px;
+  margin-bottom:25px;
+}
+
+label{
+  display:block;
+  font-weight:bold;
+  margin-top:15px;
+  margin-bottom:5px;
+}
+
+input{
+  width:100%;
+  padding:14px;
+  font-size:16px;
+  border-radius:10px;
+  border:2px solid #ccc;
+}
+
+input:focus{
+  outline:none;
+  border-color:#007bff;
+}
+
+.error{
+  color:red;
+  font-size:13px;
+  height:18px;
+}
+
+.result{
+  margin-top:25px;
+  padding:15px;
+  background:#eaf4ff;
+  border:2px solid #007bff;
+  border-radius:12px;
+  line-height:1.7;
+  min-height:100px;
+  white-space:pre-wrap;
+}
+
+button{
+  width:100%;
+  margin-top:15px;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:bold;
+}
+
+.copy{
+  background:#007bff;
+  color:white;
+}
+
+.reset{
+  background:#666;
+  color:white;
+}
+
+@media(max-width:480px){
+  body{
+    padding:10px;
+  }
+
+  h1{
+    font-size:21px;
+  }
+
+  .container{
+    padding:15px;
+  }
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>😀 コロ影響構文ジェネレーター</h1>
+
+
+<label>
+航空会社
+</label>
+
+<input
+id="airline"
+placeholder="例：ピーチ">
+
+<div class="error" id="airlineError"></div>
+
+
+
+<label>
+空港・出発地
+</label>
+
+<input
+id="airport"
+placeholder="例：関空">
+
+<div class="error" id="airportError"></div>
+
+
+
+<label>
+出発時刻
+</label>
+
+<input
+id="time"
+placeholder="例：7：15">
+
+<div class="error" id="timeError"></div>
+
+
+
+<label>
+座席番号
+</label>
+
+<input
+id="seat"
+placeholder="例：21A">
+
+<div class="error" id="seatError"></div>
+
+
+
+<div class="result" id="result">
+入力すると構文が表示されます。
+</div>
+
+
+<button class="copy" onclick="copyText()">
+📋 コピー
+</button>
+
+
+<button class="reset" onclick="resetForm()">
+🔄 リセット
+</button>
+
+
+</div>
+
+
+<script>
+
+const ids=[
+"airline",
+"airport",
+"time",
+"seat"
+];
+
+
+ids.forEach(id=>{
+
+ const el=document.getElementById(id);
+
+ const saved=localStorage.getItem(id);
+
+ if(saved){
+   el.value=saved;
+ }
+
+ el.addEventListener("input",()=>{
+
+   localStorage.setItem(id,el.value);
+
+   validate();
+
+   generate();
+
+ });
+
+});
+
+
+function validate(){
+
+ let airline=document.getElementById("airline");
+ let airport=document.getElementById("airport");
+ let time=document.getElementById("time");
+ let seat=document.getElementById("seat");
+
+ let ok=true;
+
+
+ if(
+ airline.value &&
+ !/^[ァ-ヶー]+$/.test(airline.value)
+ ){
+  airlineError.textContent=
+  "航空会社はカタカナのみ";
+  ok=false;
+ }else{
+  airlineError.textContent="";
+ }
+
+
+ if(
+ airport.value &&
+ !/^[一-龯ァ-ヶー]+$/.test(airport.value)
+ ){
+  airportError.textContent=
+  "漢字・カタカナのみ";
+  ok=false;
+ }else{
+  airportError.textContent="";
+ }
+
+
+ if(
+ time.value &&
+ !/^[0-9]+：+[0-9]+$/.test(time.value)
+ ){
+  timeError.textContent=
+  "半角数字＋全角コロンで入力";
+  ok=false;
+ }else{
+  timeError.textContent="";
+ }
+
+
+ if(
+ seat.value &&
+ !/^[0-9]+[A-Za-z]+$/.test(seat.value)
+ ){
+  seatError.textContent=
+  "半角英数字で入力";
+  ok=false;
+ }else{
+  seatError.textContent="";
+ }
+
+
+ return ok;
+
+}
+
+
+function generate(){
+
+const airline=document.getElementById("airline").value;
+const airport=document.getElementById("airport").value;
+const time=document.getElementById("time").value;
+const seat=document.getElementById("seat").value;
+
+
+if(!airline&&!airport&&!time&&!seat){
+
+result.textContent=
+"入力すると構文が表示されます。";
+
+return;
+
+}
+
+
+result.textContent=
+`コロ影響で${airline}${airport}${time}は、客かなり少ない。予約しとき結構埋まってました。${seat}で隣左右客いない😀窓口に移動した。今から寝ます`;
+
+}
+
+
+function copyText(){
+
+navigator.clipboard.writeText(
+document.getElementById("result").textContent
+);
+
+alert("コピーしました");
+
+}
+
+
+function resetForm(){
+
+ids.forEach(id=>{
+
+localStorage.removeItem(id);
+
+document.getElementById(id).value="";
+
+});
+
+generate();
+
+}
+
+
+generate();
+
+</script>
